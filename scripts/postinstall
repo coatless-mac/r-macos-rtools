@@ -1,0 +1,273 @@
+#!/usr/bin/env bash
+
+#
+# postinstall.sh
+#
+# Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
+# 
+# Version 1.0 -- 03/22/18
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+
+# This file contains code that is MIT licensed by Timothy Sutton 2013 - 2014
+# The code used is given at:
+# https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14
+
+
+echo "Verifying Xcode CLI is installed..."
+
+# Check if the Xcode CLI tool directory exists.
+# See technical note: https://developer.apple.com/library/content/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-WHAT_IS_THE_COMMAND_LINE_TOOLS_PACKAGE_
+# Note: This is not a rigorous check... So, if a user has deleted contents
+# inside the folder but left the folder intact, then this will _not_ trigger
+# an installation
+
+if [ ! -d "/Library/Developer/CommandLineTools" ]; then
+
+    # Create a temporary file for the header
+	touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+	
+	# Figure out the correct Xcode CLI for the given mac OS
+	PROD=$(sudo softwareupdate -l |
+	  grep "\*.*Command Line" |
+	  tail -n 1 | awk -F"*" '{print $2}' |
+	  sed -e 's/^ *//' |
+	  tr -d '\n')
+		  
+    # Install Xcode CLI		 
+	sudo softwareupdate -i "$PROD" --verbose;
+	
+	rm -rf /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+else
+	echo "Xcode CLI is installed..."	
+fi
+
+################################################################
+
+#1 Base URL (with trailing /)
+#2 File name
+download_file(){
+	if [ -f "$2" ]; then
+		echo "$2 has already been downloaded..."
+	else 
+	    echo "Downloading file $2 ... Please be patient..."	
+		# Download file into working directory
+		curl -O $1$2
+	fi
+}
+
+#1 File name
+extract_file(){
+	# Extract in working directory
+	tar fvxz $1 -C /
+}
+
+
+################################################################
+
+# The following script are meant to modify the Makevars file
+# for R
+
+#1 Variable to find/remove
+#2 Config file to search
+remove_config_variable(){
+	
+	pattern=$1
+	config_file=$2
+	
+	# Check if there are matches
+	if grep -q $pattern $config_file; then
+		# Remove matches
+		# '' required due to macOS
+		sed -i '' "/$pattern/d" $config_file
+		echo "Removed configuration line containing: $pattern ..."
+    fi
+}
+
+#1 Variable to find
+#2 Value to append
+#3 Config file to search
+append_config_variable(){
+	pattern=$1
+	append_with=$2
+	config_file=$3
+	
+	# Check if there are matches
+	if grep -q $pattern $config_file; then
+		# Append to the end of the line of each match
+		# '' required due to macOS
+		sed -i '' "\~$pattern~s~$~ $append_with~" $config_file
+		echo "Appended configuration line containing $pattern with $append_with ..."
+	else
+		# Append a new line to end of config file
+		echo "$pattern=$append_with" >> $config_file
+		echo "Added new configuration line $pattern=$append_with to end of $config_file..."
+	fi
+}
+
+add_config_variable(){
+	config_var=$1
+	config_file=$2
+	
+	echo "Adding configuration line $config_var to $config_file ..."
+	
+	# Append a new line to end of config file
+	echo "$config_var" >> $config_file
+}
+
+################################################################
+
+# Provide download information for clang4 binary
+LIBS_URL="http://r.research.att.com/libs/"
+REQUESTED_FILE="clang-4.0.0-darwin15.6-Release.tar.gz"
+
+# Download file into working directory
+download_file $LIBS_URL $REQUESTED_FILE
+
+# Extract file into root
+extract_file $REQUESTED_FILE
+
+# Clean up by removing tar
+rm -rf $REQUESTED_FILE
+
+################################################################
+
+# Local User Makevars file
+R_MAKEVARS_LOCAL=~/.R/Makevars
+
+# Location of CC Compiler
+CC_COMPILER=/usr/local/clang4/bin/clang
+
+# Location of CXX Compiler
+CXX_COMPILER=/usr/local/clang4/bin/clang++
+
+echo "Checking if file '~/.R/Makevars' exists"
+if [ -f "$R_MAKEVARS_LOCAL" ]; then	
+
+	echo "'~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
+	
+	# Consider adding [[:space:]]*= for a more selective destruction
+	
+	remove_config_variable "CC" $R_MAKEVARS_LOCAL
+	add_config_variable "CC=$CC_COMPILER" $R_MAKEVARS_LOCAL
+	
+	remove_config_variable "CXX" $R_MAKEVARS_LOCAL
+	add_config_variable "CXX=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+    
+    # Adds configuration variables that specify all C++ standards
+    
+    add_config_variable "CXX1X=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+    
+    add_config_variable "CXX98=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+    add_config_variable "CXX11=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+    add_config_variable "CXX14=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+    add_config_variable "CXX17=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+
+	# Remove any instances of the LDFLAG (in the odd case they re-run the installer...)
+	LDFLAGS_PATH_VAR="-L/usr/local/clang4/lib"
+	
+	sed -i '' "s~$LDFLAGS_PATH_VAR~~" $R_MAKEVARS_LOCAL
+	
+	# Add only one instance 
+	append_config_variable "LDFLAGS" "$LDFLAGS_PATH_VAR" $R_MAKEVARS_LOCAL
+	
+else
+	
+	echo "No '~/.R/Makevars' found. Creating one..."
+	
+	# Create the R directory
+	mkdir -p ~/.R
+	
+	# Create the file
+	touch $R_MAKEVARS_LOCAL
+	
+	echo "Filling '~/.R/Makevars' with appropriate compile time implicit variables..."
+	
+	# Fill with appropriate linking statements via heredoc insertion
+	# The - removes tabbing
+	cat <<- EOF > $R_MAKEVARS_LOCAL
+	# The following statements are required to use the clang4 binary
+	CC=$CC_COMPILER
+	CXX=$CXX_COMPILER
+	CXX1X=$CXX_COMPILER
+	CXX98=$CXX_COMPILER
+	CXX11=$CXX_COMPILER
+	CXX14=$CXX_COMPILER
+	CXX17=$CXX_COMPILER
+	LDFLAGS=-L/usr/local/clang4/lib
+	# End clang4 inclusion statements
+EOF
+	
+fi
+
+echo "Success! '~/.R/Makevars' has been configured correctly..."
+
+##########################################
+
+# gfortran binary
+
+## The following is based of a superuser answer by n8felton
+## https://superuser.com/a/1259034/429046
+
+# Retrieve version string 10.13.3
+product_version=$(sw_vers -productVersion)
+
+# Substitute periods with spaces
+os_vers=( ${product_version//./ } )
+
+#  Retrieve 
+os_vers_minor="${os_vers[1]}"
+
+# Check if the version is between Sierra or High Sierra. If not, check for El Capitan.
+if [[ ${os_vers_minor} -ge 12 && ${os_vers_minor} -le 13 ]]; then
+    GFORTRAN_DMG=gfortran-6.3-Sierra
+	GFORTRAN_PKG=gfortran
+	# Fill with appropriate linking statements via heredoc insertion
+	cat <<- EOF >> $R_MAKEVARS_LOCAL
+	# The following statement changes the Fortran linking path
+	FLIBS=-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin16/6.3.0
+	# End Fortran linking path statement
+EOF
+else
+    GFORTRAN_DMG=gfortran-6.1-ElCapitan
+	GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
+fi
+
+# Download software
+
+# Provide download information for clang4 binary
+LIBS_URL="http://coudert.name/software/"
+REQUESTED_FILE=${GFORTRAN_DMG}.dmg
+
+# Download file into working directory
+download_file $LIBS_URL $REQUESTED_FILE
+
+# Perform headless installation of gfortran
+# Steps based on
+# https://apple.stackexchange.com/questions/73926/is-there-a-command-to-install-a-dmg
+
+# Attach gfortran dmg
+sudo hdiutil attach ${GFORTRAN_DMG}.dmg
+
+# Trigger the installer to install into root (default)
+sudo installer -package /Volumes/${GFORTRAN_DMG}/${GFORTRAN_PKG}.pkg -target /
+
+# Clean up by detaching the installer
+sudo hdiutil detach /Volumes/${GFORTRAN_DMG} -force
+
+# Delete the dmg file
+rm -rf ${GFORTRAN_DMG}.dmg

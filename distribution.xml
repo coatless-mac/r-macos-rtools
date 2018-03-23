@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <pkg-ref id="com.rbinaries.rtools"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.rbinaries.rtools"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.rbinaries.rtools" visible="false">
+        <pkg-ref id="com.rbinaries.rtools"/>
+    </choice>
+    <pkg-ref id="com.rbinaries.rtools" version="1.0.0" onConclusion="none">macos-rtools-temp.pkg</pkg-ref>
+	<title>macOS R toolchain</title>
+	<background file="Rlogo.png" mime-type="image/png" />
+	<welcome file="WELCOME_DISPLAY.rtf"/>
+	<license file="LICENSE.rtf"/>
+</installer-gui-script>
