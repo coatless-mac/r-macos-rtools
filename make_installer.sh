@@ -38,10 +38,10 @@ mkdir empty
 
 # Build macOS installer
 pkgbuild --root empty \
-	     --scripts scripts \
-         --identifier com.rbinaries.rtools \
-         --version $INSTALLER_VERSION \
-         macos-rtools-temp.pkg
+	--scripts scripts \
+	--identifier com.rbinaries.rtools \
+	--version $INSTALLER_VERSION \
+	macos-rtools-temp.pkg
 
 # Create a distribution file to allow for customization
 productbuild --synthesize --package ./macos-rtools-temp.pkg distribution.xml
@@ -79,9 +79,9 @@ echo "Rebuilding the package archive..."
 
 # Rebuild package with distribution hacks
 productbuild --distribution distribution.xml \
-	         --resources ./build_files \
-			 --sign "Developer ID Installer: James Balamuta" \
-		     --package-path ./macos-rtools-temp.pkg macos-rtools.pkg
+	--resources ./build_files \
+	--sign "Developer ID Installer: James Balamuta" \
+	--package-path ./macos-rtools-temp.pkg macos-rtools.pkg
 
 # Delete the initial build
 rm macos-rtools-temp.pkg
