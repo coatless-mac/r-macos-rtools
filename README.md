@@ -17,9 +17,11 @@ Unlike the [previous installer](https://github.com/coatless/r-macos-clang),
 which only installed `clang4`, this installer requires internet access
 to work.
 
-**Financial support was provided to sign the installer by 
+**Note** The installer package was developed by [James Joseph Balamuta](https://thecoatlessprofessor.com)
+and has no connection with the R project’s macOS CRAN maintainers. 
+Financial support was provided to sign the installer by 
 [Professor Timothy Bates](http://www.ed.ac.uk/profile/timothy-bates) 
-of the [University of Edinburgh](http://www.ed.ac.uk/).**
+of the [University of Edinburgh](http://www.ed.ac.uk/).
 
 ## How do I use the installer?
 
@@ -28,7 +30,9 @@ open the installer by right clicking to bring up menu and
 selecting "Open". From here, navigate through it like a normal
  macOS installer.
 
-**That's it.** Once installed, you can start using compiled code
+**That's it.**
+
+Once installed, you can start using compiled code
 in _R_ like normal with the added benefit of `OpenMP`.
 
 If you want to see behind the curtain, continue reading...
