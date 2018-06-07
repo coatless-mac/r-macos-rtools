@@ -9,8 +9,9 @@ Specifically, the installer will try to download and install:
 - `clang4` from <http://r.research.att.com/libs/>
 - `gfortran` from <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>
 
-For those interested, the installer can obtained
-here <https://uofi.box.com/v/r-macos-rtools-pkg>. The pre-built binaries this
+For those interested, the installer can be obtained
+on either the project's [**release page**](https://github.com/coatless/r-macos-rtools/releases/latest)
+or through <http://go.illinois.edu/r-macos-rtools-pkg>. The pre-built binaries this
 installer encloses can be found at <https://developer.apple.com/download/more/>,
 <http://r.research.att.com/libs/>, and <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>. 
 Unlike the [previous installer](https://github.com/coatless/r-macos-clang), 
@@ -25,10 +26,10 @@ of the [University of Edinburgh](http://www.ed.ac.uk/).
 
 ## How do I use the installer?
 
-Download it from <https://uofi.box.com/v/r-macos-rtools-pkg>, 
-open the installer by right clicking to bring up menu and 
-selecting "Open". From here, navigate through it like a normal
- macOS installer.
+1. Download it from the project's [**release page**](https://github.com/coatless/r-macos-rtools/releases/latest)
+   or through <http://go.illinois.edu/r-macos-rtools-pkg>.
+2. Open the installer by either double click or right clicking to bring up menu and selecting "Open".
+3. From here, navigate through it like a normal macOS installer.
 
 **That's it.**
 
@@ -42,12 +43,19 @@ If you want to see behind the curtain, continue reading...
 The macOS _R_ toolchain installer performs four actions that require
 the user's password to accomplish. These actions are:
 
-1. download and install XCode CLI
-1. download and install the `clang4` pre-made binary 
+1. download and install XCode CLI via secure Apple product update
+1. download, verify, and install the `clang4` pre-made binary 
    files into the `/usr/local/clang4` directory
-1. download and install `gfortran`
+1. download, verify, and install `gfortran`
 1. establish the proper paths for `CC`, `CXX`, `CXX**`, `FLIBS`,
     and `LDFLAGS` in the  `~/.R/Makevars` file
+
+Verify steps are conducted using embedded md5 hashes of the files.
+If the hash is not identical to what was embedded, the installer will
+exit. For details as to how this implemented please see
+[Issue 8: Verify pkg hash](https://github.com/coatless/r-macos-rtools/issues/8)
+and the 
+[Pull Request 10: Feature Pkg Hash Verification](https://github.com/coatless/r-macos-rtools/pull/10).
 
 In essence, it provides a graphical user interface installation guide,
 more secure path manipulation, and a smarter handling of a pre-existing

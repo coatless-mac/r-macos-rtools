@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 1.0 -- 03/22/18
+# Version 1.1 -- 06/06/18
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,6 +76,25 @@ extract_file(){
 	tar fvxz $1 -C /
 }
 
+################################################################
+
+#1 Path to File
+#2 md5 Hash to Check Against
+check_md5_hash() {
+	
+    # Obtain file hash
+    FILE_HASH=$(md5 $1 | awk '{print $4}')
+    
+    # MD5 (path/to/file.pkg) = c29700c4e7b2914073ef7e741eb105bc
+    #  1 %         2        %3%      4 
+     
+    # Check against hash
+    if [ "$FILE_HASH" = "$2" ]; then
+       echo 0
+    else 
+       exit 1
+    fi
+}
 
 ################################################################
 
@@ -137,6 +156,10 @@ REQUESTED_FILE="clang-4.0.0-darwin15.6-Release.tar.gz"
 
 # Download file into working directory
 download_file $LIBS_URL $REQUESTED_FILE
+
+# Check the hash matches the built-in hash
+# exit if this is not the case
+check_md5_hash $REQUESTED_FILE "2bec4fbae8d9caf6499c941ef9b87eae"
 
 # Extract file into root
 extract_file $REQUESTED_FILE
@@ -236,6 +259,8 @@ os_vers_minor="${os_vers[1]}"
 if [[ ${os_vers_minor} -ge 12 && ${os_vers_minor} -le 13 ]]; then
 	GFORTRAN_DMG=gfortran-6.3-Sierra
 	GFORTRAN_PKG=gfortran
+	GFORTRAN_HASH="1849cea667bb714c5c04a8565a9fe231"
+
 	# Fill with appropriate linking statements via heredoc insertion
 	cat <<- EOF >> $R_MAKEVARS_LOCAL
   # The following statement changes the Fortran linking path
@@ -245,6 +270,7 @@ EOF
 else
 	GFORTRAN_DMG=gfortran-6.1-ElCapitan
 	GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
+	GFORTRAN_HASH="457b59a6453069cf72dee9a4f9bf1b0a"
 fi
 
 # Download software
@@ -255,6 +281,10 @@ REQUESTED_FILE=${GFORTRAN_DMG}.dmg
 
 # Download file into working directory
 download_file $LIBS_URL $REQUESTED_FILE
+
+# Check the hash matches the built-in hash
+# exit if this is not the case
+check_md5_hash $REQUESTED_FILE $GFORTRAN_HASH
 
 # Perform headless installation of gfortran
 # Steps based on

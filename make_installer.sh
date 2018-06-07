@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
 #
-# Version 1.0.0 -- 03/22/18
+# Version 1.1.0 -- 06/06/18
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 chmod a+x scripts/*
 
 # Version of installer
-INSTALLER_VERSION=1.0.0
+INSTALLER_VERSION=1.1.0
 
 # Create a payload-free package
 
@@ -81,7 +81,7 @@ echo "Rebuilding the package archive..."
 productbuild --distribution distribution.xml \
 	--resources ./build_files \
 	--sign "Developer ID Installer: James Balamuta" \
-	--package-path ./macos-rtools-temp.pkg macos-rtools.pkg
+	--package-path ./macos-rtools-temp.pkg macos-rtools-${INSTALLER_VERSION}.pkg
 
 # Delete the initial build
 rm macos-rtools-temp.pkg
