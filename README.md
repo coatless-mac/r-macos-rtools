@@ -43,12 +43,19 @@ If you want to see behind the curtain, continue reading...
 The macOS _R_ toolchain installer performs four actions that require
 the user's password to accomplish. These actions are:
 
-1. download and install XCode CLI
-1. download and install the `clang4` pre-made binary 
+1. download and install XCode CLI via secure Apple product update
+1. download, verify, and install the `clang4` pre-made binary 
    files into the `/usr/local/clang4` directory
-1. download and install `gfortran`
+1. download, verify, and install `gfortran`
 1. establish the proper paths for `CC`, `CXX`, `CXX**`, `FLIBS`,
     and `LDFLAGS` in the  `~/.R/Makevars` file
+
+Verify steps are conducted using embedded md5 hashes of the files.
+If the hash is not identical to what was embedded, the installer will
+exit. For details as to how this implemented please see
+[Issue 8: Verify pkg hash](https://github.com/coatless/r-macos-rtools/issues/8)
+and the 
+[Pull Request 10: Feature Pkg Hash Verification](https://github.com/coatless/r-macos-rtools/pull/10).
 
 In essence, it provides a graphical user interface installation guide,
 more secure path manipulation, and a smarter handling of a pre-existing
