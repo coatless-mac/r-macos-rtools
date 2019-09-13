@@ -177,15 +177,15 @@ add_config_variable(){
 ################################################################
 
 # Provide download information for clang4 binary
-LIBS_URL="http://r.research.att.com/libs/"
-REQUESTED_FILE="clang-4.0.0-darwin15.6-Release.tar.gz"
+LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
+REQUESTED_FILE="clang-7.0.0.pkg"
 
 # Download file into working directory
 download_file $LIBS_URL $REQUESTED_FILE
 
 # Check the hash matches the built-in hash
 # exit if this is not the case
-check_md5_hash $REQUESTED_FILE "2bec4fbae8d9caf6499c941ef9b87eae"
+check_md5_hash $REQUESTED_FILE "cef3fd2a5c165d00f9941f64ea4024f7"
 
 # Extract file into root
 extract_file $REQUESTED_FILE
