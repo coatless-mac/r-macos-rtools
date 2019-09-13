@@ -122,6 +122,11 @@ check_md5_hash() {
     fi
 }
 
+# 1: Package to install 
+install_pkg_root() {
+	sudo installer -package $1 -target /
+}
+
 ################################################################
 
 # The following script are meant to modify the Makevars file
