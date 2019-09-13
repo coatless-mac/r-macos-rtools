@@ -83,7 +83,7 @@ Below is an abridged version of the actions of each file provided.
 		and installs it using `softwareupdate`.
       - Downloads the `clang-7.0.0.pkg` from
        <https://cran.r-project.org/bin/macosx/tools/> and installs it into `/` directory
-	    so that it is installed on `/usr/local/clang4`
+	    so that it is installed on `/usr/local/clang7`
       - Downloads the gfortran binary 6.1 from 
         <https://cran.r-project.org/bin/macosx/tools/gfortran-6.1.pkg>, and 
         and installs it into `/usr/local/gfortran`.
