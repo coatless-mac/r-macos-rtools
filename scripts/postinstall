@@ -203,11 +203,13 @@ rm -rf $REQUESTED_FILE
 # Local User Makevars file
 R_MAKEVARS_LOCAL=~/.R/Makevars
 
+# clang compiler version
+CLANG_BINARY=clang7
+
 # Location of CC Compiler
-CC_COMPILER=/usr/local/clang7/bin/clang
+CC_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang
 
 # Location of CXX Compiler
-CXX_COMPILER=/usr/local/clang7/bin/clang++
 
 echo "[init] Checking if file '~/.R/Makevars' exists"
 if [ -f "$R_MAKEVARS_LOCAL" ]; then	
@@ -221,6 +223,7 @@ if [ -f "$R_MAKEVARS_LOCAL" ]; then
 
 	remove_config_variable "CXX" $R_MAKEVARS_LOCAL
 	add_config_variable "CXX=$CXX_COMPILER" $R_MAKEVARS_LOCAL
+CXX_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang++
 
 	# Adds configuration variables that specify all C++ standards
 
