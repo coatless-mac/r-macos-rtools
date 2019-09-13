@@ -23,12 +23,25 @@
 #
 
 
-# This file contains code that is MIT licensed by Timothy Sutton 2013 - 2014
-# The code used is given at:
+# The headless CLI install given in this file is 
+# licensed under the MIT license by Timothy Sutton 2013 - 2014
+# The unmodified code can be found at:
 # https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14
 
+# Retrieve version string x.y.z,
+# x should be 10, y is the version, and z is the patch issued
+product_version=$(sw_vers -productVersion)
 
-echo "Verifying Xcode CLI is installed..."
+# Substitute periods with spaces
+os_vers=( ${product_version//./ } )
+
+#  Retrieve 
+os_vers_minor="${os_vers[1]}"
+
+# For more details on manipulations, c.f. 
+# https://superuser.com/a/1259034/429046
+
+echo "[init] Verifying Xcode CLI is installed..."
 
 # Check if the Xcode CLI tool directory exists.
 # See technical note: https://developer.apple.com/library/content/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-WHAT_IS_THE_COMMAND_LINE_TOOLS_PACKAGE_
@@ -38,8 +51,15 @@ echo "Verifying Xcode CLI is installed..."
 
 if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 
+    echo "[setup] Installing Xcode CLI..."
+
 	# Create a temporary file for the header
 	touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+    # Reset the Xcode CLI path
+	if [[ ${os_vers_minor} -eq 14 ]]; then
+		sudo xcode-select --reset 
+	fi
 
 	# Figure out the correct Xcode CLI for the given mac OS
 	PROD=$(sudo softwareupdate -l |
@@ -50,10 +70,13 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 
 	# Install Xcode CLI		 
 	sudo softwareupdate -i "$PROD" --verbose;
-
+	
+    # Clean up the script
 	rm -rf /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+    echo "[note] Xcode CLI has been installed..."
 else
-	echo "Xcode CLI is installed..."	
+    echo "[note] Xcode CLI is already installed..."
 fi
 
 ################################################################
