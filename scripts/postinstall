@@ -199,10 +199,10 @@ rm -rf $REQUESTED_FILE
 R_MAKEVARS_LOCAL=~/.R/Makevars
 
 # Location of CC Compiler
-CC_COMPILER=/usr/local/clang4/bin/clang
+CC_COMPILER=/usr/local/clang7/bin/clang
 
 # Location of CXX Compiler
-CXX_COMPILER=/usr/local/clang4/bin/clang++
+CXX_COMPILER=/usr/local/clang7/bin/clang++
 
 echo "Checking if file '~/.R/Makevars' exists"
 if [ -f "$R_MAKEVARS_LOCAL" ]; then	
