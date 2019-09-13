@@ -139,7 +139,7 @@ remove_config_variable(){
 		# Remove matches
 		# '' required due to macOS
 		sed -i '' "/$pattern/d" $config_file
-		echo "Removed configuration line containing: $pattern ..."
+		echo "[status] Removed configuration line containing: $pattern ..."
 	fi
 }
 
@@ -156,11 +156,11 @@ append_config_variable(){
 		# Append to the end of the line of each match
 		# '' required due to macOS
 		sed -i '' "\~$pattern~s~$~ $append_with~" $config_file
-		echo "Appended configuration line containing $pattern with $append_with ..."
+		echo "[status] Appended configuration line containing $pattern with $append_with ..."
 	else
 		# Append a new line to end of config file
 		echo "$pattern=$append_with" >> $config_file
-		echo "Added new configuration line $pattern=$append_with to end of $config_file..."
+		echo "[status] Added new configuration line $pattern=$append_with to end of $config_file..."
 	fi
 }
 
@@ -168,7 +168,7 @@ add_config_variable(){
 	config_var=$1
 	config_file=$2
 
-	echo "Adding configuration line $config_var to $config_file ..."
+	echo "[status] Adding configuration line $config_var to $config_file ..."
 
 	# Append a new line to end of config file
 	echo "$config_var" >> $config_file
@@ -204,7 +204,7 @@ CC_COMPILER=/usr/local/clang7/bin/clang
 # Location of CXX Compiler
 CXX_COMPILER=/usr/local/clang7/bin/clang++
 
-echo "Checking if file '~/.R/Makevars' exists"
+echo "[init] Checking if file '~/.R/Makevars' exists"
 if [ -f "$R_MAKEVARS_LOCAL" ]; then	
 
 	echo "'~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
