@@ -1,2 +1,6 @@
 
 macos-rtools.pkg
+.Rproj.user
+.Rhistory
+*gfortran*.pkg
+*clang*.pkg

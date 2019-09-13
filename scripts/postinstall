@@ -3,9 +3,9 @@
 #
 # postinstall.sh
 #
-# Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
+# Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 1.1 -- 06/06/18
+# Version 3.0 -- 09/13/19
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,12 +23,25 @@
 #
 
 
-# This file contains code that is MIT licensed by Timothy Sutton 2013 - 2014
-# The code used is given at:
+# The headless CLI install given in this file is 
+# licensed under the MIT license by Timothy Sutton 2013 - 2014
+# The unmodified code can be found at:
 # https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14
 
+# Retrieve version string x.y.z,
+# x should be 10, y is the version, and z is the patch issued
+product_version=$(sw_vers -productVersion)
 
-echo "Verifying Xcode CLI is installed..."
+# Substitute periods with spaces
+os_vers=( ${product_version//./ } )
+
+#  Retrieve 
+os_vers_minor="${os_vers[1]}"
+
+# For more details on manipulations, c.f. 
+# https://superuser.com/a/1259034/429046
+
+echo "[init] Verifying Xcode CLI is installed..."
 
 # Check if the Xcode CLI tool directory exists.
 # See technical note: https://developer.apple.com/library/content/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-WHAT_IS_THE_COMMAND_LINE_TOOLS_PACKAGE_
@@ -38,8 +51,15 @@ echo "Verifying Xcode CLI is installed..."
 
 if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 
+    echo "[setup] Installing Xcode CLI..."
+
 	# Create a temporary file for the header
 	touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+    # Reset the Xcode CLI path
+	if [[ ${os_vers_minor} -eq 14 ]]; then
+		sudo xcode-select --reset 
+	fi
 
 	# Figure out the correct Xcode CLI for the given mac OS
 	PROD=$(sudo softwareupdate -l |
@@ -50,10 +70,13 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 
 	# Install Xcode CLI		 
 	sudo softwareupdate -i "$PROD" --verbose;
-
+	
+    # Clean up the script
 	rm -rf /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+    echo "[note] Xcode CLI has been installed..."
 else
-	echo "Xcode CLI is installed..."	
+    echo "[note] Xcode CLI is already installed..."
 fi
 
 ################################################################
@@ -62,9 +85,9 @@ fi
 #2 File name
 download_file(){
 	if [ -f "$2" ]; then
-		echo "$2 has already been downloaded..."
+		echo "[note] $2 has already been downloaded..."
 	else 
-		echo "Downloading file $2 ... Please be patient..."	
+		echo "[status] Downloading file $2 ... Please be patient..."	
 		# Download file into working directory
 		curl -O $1$2
 	fi
@@ -92,8 +115,16 @@ check_md5_hash() {
     if [ "$FILE_HASH" = "$2" ]; then
        echo 0
     else 
+	   echo "[error] File does not match hash..."
+	   echo "[status] Hash 1: ${FILE_HASH} $2"
+	   echo "[status] Hash 2: $2"
        exit 1
     fi
+}
+
+# 1: Package to install 
+install_pkg_root() {
+	sudo installer -package $1 -target /
 }
 
 ################################################################
@@ -113,7 +144,7 @@ remove_config_variable(){
 		# Remove matches
 		# '' required due to macOS
 		sed -i '' "/$pattern/d" $config_file
-		echo "Removed configuration line containing: $pattern ..."
+		echo "[status] Removed configuration line containing: $pattern ..."
 	fi
 }
 
@@ -130,11 +161,11 @@ append_config_variable(){
 		# Append to the end of the line of each match
 		# '' required due to macOS
 		sed -i '' "\~$pattern~s~$~ $append_with~" $config_file
-		echo "Appended configuration line containing $pattern with $append_with ..."
+		echo "[status] Appended configuration line containing $pattern with $append_with ..."
 	else
 		# Append a new line to end of config file
 		echo "$pattern=$append_with" >> $config_file
-		echo "Added new configuration line $pattern=$append_with to end of $config_file..."
+		echo "[status] Added new configuration line $pattern=$append_with to end of $config_file..."
 	fi
 }
 
@@ -142,7 +173,7 @@ add_config_variable(){
 	config_var=$1
 	config_file=$2
 
-	echo "Adding configuration line $config_var to $config_file ..."
+	echo "[status] Adding configuration line $config_var to $config_file ..."
 
 	# Append a new line to end of config file
 	echo "$config_var" >> $config_file
@@ -151,18 +182,18 @@ add_config_variable(){
 ################################################################
 
 # Provide download information for clang4 binary
-LIBS_URL="http://r.research.att.com/libs/"
-REQUESTED_FILE="clang-4.0.0-darwin15.6-Release.tar.gz"
+LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
+REQUESTED_FILE="clang-7.0.0.pkg"
 
 # Download file into working directory
 download_file $LIBS_URL $REQUESTED_FILE
 
 # Check the hash matches the built-in hash
 # exit if this is not the case
-check_md5_hash $REQUESTED_FILE "2bec4fbae8d9caf6499c941ef9b87eae"
+check_md5_hash $REQUESTED_FILE "cef3fd2a5c165d00f9941f64ea4024f7"
 
-# Extract file into root
-extract_file $REQUESTED_FILE
+# Install the package into root
+install_pkg_root $REQUESTED_FILE
 
 # Clean up by removing tar
 rm -rf $REQUESTED_FILE
@@ -172,112 +203,76 @@ rm -rf $REQUESTED_FILE
 # Local User Makevars file
 R_MAKEVARS_LOCAL=~/.R/Makevars
 
+# clang compiler version
+CLANG_BINARY=clang7
+
 # Location of CC Compiler
-CC_COMPILER=/usr/local/clang4/bin/clang
+CC_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang
 
 # Location of CXX Compiler
-CXX_COMPILER=/usr/local/clang4/bin/clang++
+CXX_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang++
 
-echo "Checking if file '~/.R/Makevars' exists"
-if [ -f "$R_MAKEVARS_LOCAL" ]; then	
+HEADER_LOCATION="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 
-	echo "'~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
-
-	# Consider adding [[:space:]]*= for a more selective destruction
-
-	remove_config_variable "CC" $R_MAKEVARS_LOCAL
-	add_config_variable "CC=$CC_COMPILER" $R_MAKEVARS_LOCAL
-
-	remove_config_variable "CXX" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-
-	# Adds configuration variables that specify all C++ standards
-
-	add_config_variable "CXX1X=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-
-	add_config_variable "CXX98=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX11=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX14=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX17=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-
-	# Remove any instances of the LDFLAG (in the odd case they re-run the installer...)
-	LDFLAGS_PATH_VAR="-L/usr/local/clang4/lib"
-
-	sed -i '' "s~$LDFLAGS_PATH_VAR~~" $R_MAKEVARS_LOCAL
-
-	# Add only one instance 
-	append_config_variable "LDFLAGS" "$LDFLAGS_PATH_VAR" $R_MAKEVARS_LOCAL
-
+echo "[init] Checking if file '~/.R/Makevars' exists"
+if [ -f "${R_MAKEVARS_LOCAL}" ]; then	
+	echo "[setup] '~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
+	cp ${R_MAKEVARS_LOCAL} ${R_MAKEVARS_LOCAL}.bck
 else
-
-	echo "No '~/.R/Makevars' found. Creating one..."
-
-	# Create the R directory
+	echo "[setup] Creating '~/.R/' directory..."
 	mkdir -p ~/.R
-
-	# Create the file
-	touch $R_MAKEVARS_LOCAL
-
-	echo "Filling '~/.R/Makevars' with appropriate compile time implicit variables..."
-
-	# Fill with appropriate linking statements via heredoc insertion
-	# The - removes tabbing
-	cat <<- EOF > $R_MAKEVARS_LOCAL
-	# The following statements are required to use the clang4 binary
-	CC=$CC_COMPILER
-	CXX=$CXX_COMPILER
-	CXX1X=$CXX_COMPILER
-	CXX98=$CXX_COMPILER
-	CXX11=$CXX_COMPILER
-	CXX14=$CXX_COMPILER
-	CXX17=$CXX_COMPILER
-	LDFLAGS=-L/usr/local/clang4/lib
-	# End clang4 inclusion statements
-EOF
-
 fi
 
-echo "Success! '~/.R/Makevars' has been configured correctly..."
+echo "[init] Creating '~/.R/Makevars' from scratch..."
+
+# Create the file
+touch ${R_MAKEVARS_LOCAL}
+
+echo "[setup] Filling '~/.R/Makevars' with appropriate compile time implicit variables..."
+# Fill with appropriate linking statements via heredoc insertion
+# The - removes tabbing
+cat <<- EOF > ${R_MAKEVARS_LOCAL}
+# clang: start
+CFLAGS=$HEADER_LOCATION
+CCFLAGS=$HEADER_LOCATION
+CXXFLAGS=$HEADER_LOCATION
+# clang: end
+EOF
+
+echo "[setup] Success! '~/.R/Makevars' has been configured correctly..."
 
 ##########################################
 
+# Add clang to path in .Renviron
+
+# Establish the location for the R environment file
+R_ENVIRON_LOCAL=~/.Renviron
+
+echo "[init] Checking if file '~/.Renviron' exists"
+if [ -f "${R_ENVIRON_LOCAL}" ]; then	
+	echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
+	cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
+fi
+
+cat <<- EOF > ${R_ENVIRON_LOCAL}
+# clang: start
+PATH="/usr/local/${CLANG_BINARY}/bin:\${PATH}"
+# clang: end
+EOF
+
+##########################################
+
+
 # gfortran binary
 
-## The following is based of a superuser answer by n8felton
-## https://superuser.com/a/1259034/429046
-
-# Retrieve version string 10.13.3
-product_version=$(sw_vers -productVersion)
-
-# Substitute periods with spaces
-os_vers=( ${product_version//./ } )
-
-#  Retrieve 
-os_vers_minor="${os_vers[1]}"
-
-# Check if the version is between Sierra or High Sierra. If not, check for El Capitan.
-if [[ ${os_vers_minor} -ge 12 && ${os_vers_minor} -le 13 ]]; then
-	GFORTRAN_DMG=gfortran-6.3-Sierra
-	GFORTRAN_PKG=gfortran
-	GFORTRAN_HASH="1849cea667bb714c5c04a8565a9fe231"
-
-	# Fill with appropriate linking statements via heredoc insertion
-	cat <<- EOF >> $R_MAKEVARS_LOCAL
-  # The following statement changes the Fortran linking path
-  FLIBS=-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin16/6.3.0
-  # End Fortran linking path statement
-EOF
-else
-	GFORTRAN_DMG=gfortran-6.1-ElCapitan
-	GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
-	GFORTRAN_HASH="457b59a6453069cf72dee9a4f9bf1b0a"
-fi
+# Deploy only the 6.1 gfortran binary
+GFORTRAN_HASH="201026216e8b373d9cd2efc0cc474bb8"
 
 # Download software
 
 # Provide download information for clang4 binary
-LIBS_URL="http://coudert.name/software/"
-REQUESTED_FILE=${GFORTRAN_DMG}.dmg
+LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
+REQUESTED_FILE="gfortran-6.1.pkg"
 
 # Download file into working directory
 download_file $LIBS_URL $REQUESTED_FILE
@@ -286,18 +281,8 @@ download_file $LIBS_URL $REQUESTED_FILE
 # exit if this is not the case
 check_md5_hash $REQUESTED_FILE $GFORTRAN_HASH
 
-# Perform headless installation of gfortran
-# Steps based on
-# https://apple.stackexchange.com/questions/73926/is-there-a-command-to-install-a-dmg
-
-# Attach gfortran dmg
-sudo hdiutil attach ${GFORTRAN_DMG}.dmg
-
-# Trigger the installer to install into root (default)
-sudo installer -package /Volumes/${GFORTRAN_DMG}/${GFORTRAN_PKG}.pkg -target /
-
-# Clean up by detaching the installer
-sudo hdiutil detach /Volumes/${GFORTRAN_DMG} -force
+# Install the package into root
+install_pkg_root $REQUESTED_FILE
 
 # Delete the dmg file
 rm -rf ${GFORTRAN_DMG}.dmg

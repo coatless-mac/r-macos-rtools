@@ -3,9 +3,9 @@
 #
 # make_installer.sh
 #
-# Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
+# Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 #
-# Version 1.1.0 -- 06/06/18
+# Version 3.0.0 -- 09/13/19
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,12 +28,14 @@
 chmod a+x scripts/*
 
 # Version of installer
-INSTALLER_VERSION=1.1.0
+INSTALLER_VERSION=3.0.0
 
-# Create a payload-free package
+# Previously, we created a payload-free package due to downloading
+# components as needed. We used a read receipt trick of including an empty
+# directory for this purpose.
 
-# Generally, this means --nopayload, but I want a receipt
-# So, we have to include an empty directory
+# Now, we're aiming to create a payload package with pre-defined components.
+# In particular, we merge together clang 7.0.0 and gfortran 6.1
 mkdir empty
 
 # Build macOS installer
@@ -75,7 +77,20 @@ add_line_1before_last '<welcome file="WELCOME_DISPLAY.rtf"/>' distribution.xml
 # Add a license file for LLVM
 add_line_1before_last '<license file="LICENSE.rtf"/>' distribution.xml
 
-echo "Rebuilding the package archive..."
+# Enforce a minimum standard for the installer.
+# R CRAN Binaries use OS X Mavericks 10.11
+# Docs: https://developer.apple.com/library/archive/documentation/DeveloperTools/Reference/DistributionDefinitionRef/Chapters/Distribution_XML_Ref.html#//apple_ref/doc/uid/TP40005370-CH100-SW33
+MINVERSION=$(cat <<-END
+<allowed-os-versions>
+    <os-version min="10.11.0" />
+</allowed-os-versions>
+END
+)
+
+# Write the standard to the distribution file.
+add_line_1before_last "${MINVERSION}" distribution.xml
+
+echo "[status] Rebuilding the package archive..."
 
 # Rebuild package with distribution hacks
 productbuild --distribution distribution.xml \

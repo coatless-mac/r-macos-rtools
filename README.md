@@ -6,17 +6,14 @@ that contains binaries used to create the CRAN official macOS _R_ binary.
 Specifically, the installer will try to download and install:
 
 - Xcode command line tools (XCode CLI) from Apple
-- `clang4` from <http://r.research.att.com/libs/>
-- `gfortran` from <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>
+- `clang7` from <https://cran.r-project.org/bin/macosx/tools/>
+- `gfortran6.1` from <https://cran.r-project.org/bin/macosx/tools/>
 
 For those interested, the installer can be obtained
 on either the project's [**release page**](https://github.com/coatless/r-macos-rtools/releases/latest)
 or through <http://go.illinois.edu/r-macos-rtools-pkg>. The pre-built binaries this
 installer encloses can be found at <https://developer.apple.com/download/more/>,
-<http://r.research.att.com/libs/>, and <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>. 
-Unlike the [previous installer](https://github.com/coatless/r-macos-clang), 
-which only installed `clang4`, this installer requires internet access
-to work.
+<https://cran.r-project.org/bin/macosx/tools/>, and <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>. 
 
 **Note** The installer package was developed by [James Joseph Balamuta](https://thecoatlessprofessor.com)
 and has no connection with the R project’s macOS CRAN maintainers. 
@@ -44,11 +41,11 @@ The macOS _R_ toolchain installer performs four actions that require
 the user's password to accomplish. These actions are:
 
 1. download and install XCode CLI via secure Apple product update
-1. download, verify, and install the `clang4` pre-made binary 
-   files into the `/usr/local/clang4` directory
-1. download, verify, and install `gfortran`
-1. establish the proper paths for `CC`, `CXX`, `CXX**`, `FLIBS`,
-    and `LDFLAGS` in the  `~/.R/Makevars` file
+1. download, verify, and install the `clang7` pre-made binary 
+   files into the `/usr/local/clang7` directory
+1. download, verify, and install `gfortran6.1`
+1. establish the proper header files in `CFLAGS`, `CPPFLAGS`, and `CXXFLAGS` in the `~/.R/Makevars` file
+1. add to the `PATH` variable where the `clang7` binary is by using `~/.Renviron`
 
 Verify steps are conducted using embedded md5 hashes of the files.
 If the hash is not identical to what was embedded, the installer will
@@ -57,9 +54,6 @@ exit. For details as to how this implemented please see
 and the 
 [Pull Request 10: Feature Pkg Hash Verification](https://github.com/coatless/r-macos-rtools/pull/10).
 
-In essence, it provides a graphical user interface installation guide,
-more secure path manipulation, and a smarter handling of a pre-existing
-`~/.R/Makevars` when compared to a pure bash approach.
 
 ## Verify the Installer
 
@@ -87,19 +81,16 @@ Below is an abridged version of the actions of each file provided.
 	    by using a [headless cli check](https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14),
 		downloads the installer from <https://developer.apple.com/download/more/>,
 		and installs it using `softwareupdate`.
-      - Downloads the `clang-4.0.0-darwin15.6-Release.tar.gz` from
-       <http://r.research.att.com/libs/> and extracts it into `/` directory 
+      - Downloads the `clang-7.0.0.pkg` from
+       <https://cran.r-project.org/bin/macosx/tools/> and installs it into `/` directory
 	    so that it is installed on `/usr/local/clang4`
-      - Detects the appropriate gfortran binary (either 6.1 or 6.3) from
-        <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>, 
-		downloads it from <http://coudert.name/software/>, and
-		installs it into `/usr/local/gfortran`
-   - Create or modify the `~/.R/Makevars` file with the necessary implicit variables
-     to compile.
-	   - `CC`, `CXX`, `CXX**`, and `LDFLAGS` for `clang4`
-	   - `FLIBS` if on macOS Sierra / High Sierra (10.12 - 10.13) to avoid
-	     a headache.
-   - This is run at the _end_ of the installer routine.
+      - Downloads the gfortran binary 6.1 from 
+        <https://cran.r-project.org/bin/macosx/tools/gfortran-6.1.pkg>, and 
+        and installs it into `/usr/local/gfortran`.
+   - Create the `~/.R/Makevars` file with the necessary implicit variables
+     to compile using the new header location.
+	   - `CFLAGS`, `CPPFLAGS`, `CXXFLAGS` for `clang7`
+   - Make the `~/.Renviron` file with a modified `PATH` variable to the location of `clang7`.
 - `make_installer.sh`
    - Create the installer package R binary installer `.pkg`
       - Builds the package from the extracted tar using `pkgbuild` 
