@@ -30,10 +30,12 @@ chmod a+x scripts/*
 # Version of installer
 INSTALLER_VERSION=1.1.0
 
-# Create a payload-free package
+# Previously, we created a payload-free package due to downloading
+# components as needed. We used a read receipt trick of including an empty
+# directory for this purpose.
 
-# Generally, this means --nopayload, but I want a receipt
-# So, we have to include an empty directory
+# Now, we're aiming to create a payload package with pre-defined components.
+# In particular, we merge together clang 7.0.0 and gfortran 6.1
 mkdir empty
 
 # Build macOS installer
