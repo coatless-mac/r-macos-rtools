@@ -85,9 +85,9 @@ fi
 #2 File name
 download_file(){
 	if [ -f "$2" ]; then
-		echo "$2 has already been downloaded..."
+		echo "[note] $2 has already been downloaded..."
 	else 
-		echo "Downloading file $2 ... Please be patient..."	
+		echo "[status] Downloading file $2 ... Please be patient..."	
 		# Download file into working directory
 		curl -O $1$2
 	fi
@@ -115,6 +115,9 @@ check_md5_hash() {
     if [ "$FILE_HASH" = "$2" ]; then
        echo 0
     else 
+	   echo "[error] File does not match hash..."
+	   echo "[status] Hash 1: ${FILE_HASH} $2"
+	   echo "[status] Hash 2: $2"
        exit 1
     fi
 }
