@@ -90,7 +90,7 @@ END
 # Write the standard to the distribution file.
 add_line_1before_last "${MINVERSION}" distribution.xml
 
-echo "Rebuilding the package archive..."
+echo "[status] Rebuilding the package archive..."
 
 # Rebuild package with distribution hacks
 productbuild --distribution distribution.xml \
