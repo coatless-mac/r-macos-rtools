@@ -269,44 +269,20 @@ echo "Success! '~/.R/Makevars' has been configured correctly..."
 
 # gfortran binary
 
-## The following is based of a superuser answer by n8felton
-## https://superuser.com/a/1259034/429046
-
-# Retrieve version string 10.13.3
-product_version=$(sw_vers -productVersion)
-
-# Substitute periods with spaces
-os_vers=( ${product_version//./ } )
-
-#  Retrieve 
-os_vers_minor="${os_vers[1]}"
-
-# Check if the version is between Sierra or High Sierra. If not, check for El Capitan.
-if [[ ${os_vers_minor} -ge 12 && ${os_vers_minor} -le 13 ]]; then
-	GFORTRAN_DMG=gfortran-6.3-Sierra
-	GFORTRAN_PKG=gfortran
-	GFORTRAN_HASH="1849cea667bb714c5c04a8565a9fe231"
-
-	# Fill with appropriate linking statements via heredoc insertion
-	cat <<- EOF >> $R_MAKEVARS_LOCAL
-  # The following statement changes the Fortran linking path
-  FLIBS=-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin16/6.3.0
-  # End Fortran linking path statement
-EOF
-else
-	GFORTRAN_DMG=gfortran-6.1-ElCapitan
-	GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
-	GFORTRAN_HASH="457b59a6453069cf72dee9a4f9bf1b0a"
-fi
+# Deploy only the 6.1 gfortran binary
+GFORTRAN_DMG=gfortran-6.1-ElCapitan
+GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
+GFORTRAN_HASH="457b59a6453069cf72dee9a4f9bf1b0a"
+GFORTRAN_GH_VERSION="6.1/"
 
 # Download software
 
 # Provide download information for clang4 binary
-LIBS_URL="http://coudert.name/software/"
+LIBS_URL="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/"
 REQUESTED_FILE=${GFORTRAN_DMG}.dmg
 
 # Download file into working directory
-download_file $LIBS_URL $REQUESTED_FILE
+download_file $LIBS_URL$GFORTRAN_GH_VERSION $REQUESTED_FILE
 
 # Check the hash matches the built-in hash
 # exit if this is not the case
