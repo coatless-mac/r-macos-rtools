@@ -245,9 +245,20 @@ echo "[setup] Success! '~/.R/Makevars' has been configured correctly..."
 
 # Add clang to path in .Renviron
 
+# Establish the location for the R environment file
+R_ENVIRON_LOCAL=~/.Renviron
 
+echo "[init] Checking if file '~/.Renviron' exists"
+if [ -f "${R_ENVIRON_LOCAL}" ]; then	
+	echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
+	cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
 fi
 
+cat <<- EOF > ${R_ENVIRON_LOCAL}
+# clang: start
+PATH="/usr/local/${CLANG_BINARY}/bin:\${PATH}"
+# clang: end
+EOF
 
 ##########################################
 
