@@ -262,39 +262,27 @@ EOF
 
 ##########################################
 
+
 # gfortran binary
 
 # Deploy only the 6.1 gfortran binary
-GFORTRAN_DMG=gfortran-6.1-ElCapitan
-GFORTRAN_PKG=gfortran-6.1-ElCapitan/gfortran
-GFORTRAN_HASH="457b59a6453069cf72dee9a4f9bf1b0a"
-GFORTRAN_GH_VERSION="6.1/"
+GFORTRAN_HASH="201026216e8b373d9cd2efc0cc474bb8"
 
 # Download software
 
 # Provide download information for clang4 binary
-LIBS_URL="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/"
-REQUESTED_FILE=${GFORTRAN_DMG}.dmg
+LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
+REQUESTED_FILE="gfortran-6.1.pkg"
 
 # Download file into working directory
-download_file $LIBS_URL$GFORTRAN_GH_VERSION $REQUESTED_FILE
+download_file $LIBS_URL $REQUESTED_FILE
 
 # Check the hash matches the built-in hash
 # exit if this is not the case
 check_md5_hash $REQUESTED_FILE $GFORTRAN_HASH
 
-# Perform headless installation of gfortran
-# Steps based on
-# https://apple.stackexchange.com/questions/73926/is-there-a-command-to-install-a-dmg
-
-# Attach gfortran dmg
-sudo hdiutil attach ${GFORTRAN_DMG}.dmg
-
-# Trigger the installer to install into root (default)
-sudo installer -package /Volumes/${GFORTRAN_DMG}/${GFORTRAN_PKG}.pkg -target /
-
-# Clean up by detaching the installer
-sudo hdiutil detach /Volumes/${GFORTRAN_DMG} -force
+# Install the package into root
+install_pkg_root $REQUESTED_FILE
 
 # Delete the dmg file
 rm -rf ${GFORTRAN_DMG}.dmg
