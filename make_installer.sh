@@ -3,9 +3,9 @@
 #
 # make_installer.sh
 #
-# Copyright (C) 2018 James Joseph Balamuta <balamut2@illinois.edu>
+# Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 #
-# Version 1.1.0 -- 06/06/18
+# Version 3.0.0 -- 09/13/19
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 chmod a+x scripts/*
 
 # Version of installer
-INSTALLER_VERSION=1.1.0
+INSTALLER_VERSION=3.0.0
 
 # Previously, we created a payload-free package due to downloading
 # components as needed. We used a read receipt trick of including an empty
