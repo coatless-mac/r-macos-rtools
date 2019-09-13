@@ -75,6 +75,19 @@ add_line_1before_last '<welcome file="WELCOME_DISPLAY.rtf"/>' distribution.xml
 # Add a license file for LLVM
 add_line_1before_last '<license file="LICENSE.rtf"/>' distribution.xml
 
+# Enforce a minimum standard for the installer.
+# R CRAN Binaries use OS X Mavericks 10.11
+# Docs: https://developer.apple.com/library/archive/documentation/DeveloperTools/Reference/DistributionDefinitionRef/Chapters/Distribution_XML_Ref.html#//apple_ref/doc/uid/TP40005370-CH100-SW33
+MINVERSION=$(cat <<-END
+<allowed-os-versions>
+    <os-version min="10.11.0" />
+</allowed-os-versions>
+END
+)
+
+# Write the standard to the distribution file.
+add_line_1before_last "${MINVERSION}" distribution.xml
+
 echo "Rebuilding the package archive..."
 
 # Rebuild package with distribution hacks
