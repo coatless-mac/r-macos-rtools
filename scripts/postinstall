@@ -192,8 +192,8 @@ download_file $LIBS_URL $REQUESTED_FILE
 # exit if this is not the case
 check_md5_hash $REQUESTED_FILE "cef3fd2a5c165d00f9941f64ea4024f7"
 
-# Extract file into root
-extract_file $REQUESTED_FILE
+# Install the package into root
+install_pkg_root $REQUESTED_FILE
 
 # Clean up by removing tar
 rm -rf $REQUESTED_FILE
