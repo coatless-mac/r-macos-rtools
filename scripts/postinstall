@@ -210,68 +210,44 @@ CLANG_BINARY=clang7
 CC_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang
 
 # Location of CXX Compiler
-
-echo "[init] Checking if file '~/.R/Makevars' exists"
-if [ -f "$R_MAKEVARS_LOCAL" ]; then	
-
-	echo "'~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
-
-	# Consider adding [[:space:]]*= for a more selective destruction
-
-	remove_config_variable "CC" $R_MAKEVARS_LOCAL
-	add_config_variable "CC=$CC_COMPILER" $R_MAKEVARS_LOCAL
-
-	remove_config_variable "CXX" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX=$CXX_COMPILER" $R_MAKEVARS_LOCAL
 CXX_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang++
 
-	# Adds configuration variables that specify all C++ standards
+HEADER_LOCATION="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 
-	add_config_variable "CXX1X=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-
-	add_config_variable "CXX98=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX11=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX14=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-	add_config_variable "CXX17=$CXX_COMPILER" $R_MAKEVARS_LOCAL
-
-	# Remove any instances of the LDFLAG (in the odd case they re-run the installer...)
-	LDFLAGS_PATH_VAR="-L/usr/local/clang4/lib"
-
-	sed -i '' "s~$LDFLAGS_PATH_VAR~~" $R_MAKEVARS_LOCAL
-
-	# Add only one instance 
-	append_config_variable "LDFLAGS" "$LDFLAGS_PATH_VAR" $R_MAKEVARS_LOCAL
-
+echo "[init] Checking if file '~/.R/Makevars' exists"
+if [ -f "${R_MAKEVARS_LOCAL}" ]; then	
+	echo "[setup] '~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck'..."
+	cp ${R_MAKEVARS_LOCAL} ${R_MAKEVARS_LOCAL}.bck
 else
-
-	echo "No '~/.R/Makevars' found. Creating one..."
-
-	# Create the R directory
+	echo "[setup] Creating '~/.R/' directory..."
 	mkdir -p ~/.R
+fi
 
-	# Create the file
-	touch $R_MAKEVARS_LOCAL
+echo "[init] Creating '~/.R/Makevars' from scratch..."
 
-	echo "Filling '~/.R/Makevars' with appropriate compile time implicit variables..."
+# Create the file
+touch ${R_MAKEVARS_LOCAL}
 
-	# Fill with appropriate linking statements via heredoc insertion
-	# The - removes tabbing
-	cat <<- EOF > $R_MAKEVARS_LOCAL
-	# The following statements are required to use the clang4 binary
-	CC=$CC_COMPILER
-	CXX=$CXX_COMPILER
-	CXX1X=$CXX_COMPILER
-	CXX98=$CXX_COMPILER
-	CXX11=$CXX_COMPILER
-	CXX14=$CXX_COMPILER
-	CXX17=$CXX_COMPILER
-	LDFLAGS=-L/usr/local/clang4/lib
-	# End clang4 inclusion statements
+echo "[setup] Filling '~/.R/Makevars' with appropriate compile time implicit variables..."
+# Fill with appropriate linking statements via heredoc insertion
+# The - removes tabbing
+cat <<- EOF > ${R_MAKEVARS_LOCAL}
+# clang: start
+CFLAGS=$HEADER_LOCATION
+CCFLAGS=$HEADER_LOCATION
+CXXFLAGS=$HEADER_LOCATION
+# clang: end
 EOF
+
+echo "[setup] Success! '~/.R/Makevars' has been configured correctly..."
+
+##########################################
+
+# Add clang to path in .Renviron
+
 
 fi
 
-echo "Success! '~/.R/Makevars' has been configured correctly..."
 
 ##########################################
 
