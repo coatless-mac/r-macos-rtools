@@ -63,6 +63,7 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 	fi
     
     echo "[note] Retrieving correct Xcode CLI..."
+    
 	# Figure out the correct Xcode CLI for the given mac OS
     PROD=""
 	if [[ ${os_vers_minor} -ge 15 ]]; then
