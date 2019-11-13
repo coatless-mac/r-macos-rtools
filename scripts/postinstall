@@ -51,16 +51,18 @@ echo "[init] Verifying Xcode CLI is installed..."
 
 if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 
-    echo "[setup] Installing Xcode CLI..."
+    echo "[setup] Begin install procedure for Xcode CLI..."
 
 	# Create a temporary file for the header
 	touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
     # Reset the Xcode CLI path
-	if [[ ${os_vers_minor} -eq 14 ]]; then
+	if [[ ${os_vers_minor} -ge 14 ]]; then
+        echo "[note] Needed to reset Xcode CLI path..."
 		sudo xcode-select --reset 
 	fi
-
+    
+    echo "[note] Retrieving correct Xcode CLI..."
 	# Figure out the correct Xcode CLI for the given mac OS
 	PROD=$(sudo softwareupdate -l |
 		grep "\*.*Command Line" |
@@ -68,15 +70,17 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
 		sed -e 's/^ *//' |
 		tr -d '\n')
 
+    echo "[setup] Installing Xcode CLI via softwareupdate..."
 	# Install Xcode CLI		 
 	sudo softwareupdate -i "$PROD" --verbose;
 	
+    echo "[clean] Removing temporary file created..."
     # Clean up the script
 	rm -rf /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
-    echo "[note] Xcode CLI has been installed..."
+    echo "[done] Xcode CLI has been installed..."
 else
-    echo "[note] Xcode CLI is already installed..."
+    echo "[done] Xcode CLI is already installed..."
 fi
 
 ################################################################
