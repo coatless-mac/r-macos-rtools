@@ -1,8 +1,12 @@
 # ChangeLog
 
-* __next version__ - XXXX-XX-XX
+* __v3.1.0__ - 2019-11-13
 
-- TBA
+- Add `CXXFLAGS` in `~/.R/Makevars` for better support prior to R 3.6.1
+- Add `SHLIB_CXXLDFLAGS` in `~/.R/Makevars` to link to the R ABI
+  libraries instead of system. (h/t Sebastian from the [Stan Project](https://mc-stan.org)).
+- Update `README.md` details.
+
 * __v3.0.0__ - 2019-09-13
 
 - Use `~/.Renviron` to setup a `PATH` variable to `clang7` compiler location.
