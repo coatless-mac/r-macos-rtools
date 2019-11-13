@@ -3,6 +3,12 @@
 * __next version__ - XXXX-XX-XX
 
 - TBA
+* __v3.0.0__ - 2019-09-13
+
+- Use `~/.Renviron` to setup a `PATH` variable to `clang7` compiler location.
+- Deploy `*FLAGS` in `~/.R/Makevars` to successfully handle the Xcode CLI changeover
+- Depend on the CRAN variants for installer packages
+- Add in a statement to reset the Xcode CLI environment.
 
 * __1.1.0__ - 2018-06-06
 
