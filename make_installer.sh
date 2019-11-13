@@ -24,6 +24,8 @@
 
 #### Build Installer
 
+echo "[setup] Creating an environment for the installer..."
+
 # Make sure file permissions for postinstall is set
 chmod a+x scripts/*
 
@@ -34,10 +36,12 @@ INSTALLER_VERSION=3.0.0
 # components as needed. We used a read receipt trick of including an empty
 # directory for this purpose.
 
+echo "[setup] Creating an empty staging directory..."
 # Now, we're aiming to create a payload package with pre-defined components.
 # In particular, we merge together clang 7.0.0 and gfortran 6.1
 mkdir empty
 
+echo "[build] Creating a temporary macos installer package..."
 # Build macOS installer
 pkgbuild --root empty \
 	--scripts scripts \
@@ -48,7 +52,7 @@ pkgbuild --root empty \
 # Create a distribution file to allow for customization
 productbuild --synthesize --package ./macos-rtools-temp.pkg distribution.xml
 
-echo "Writing in additional configuration options..."
+echo "[build] Writing in additional configuration options..."
 
 # Helper function that adds a line 1 before the last one
 #1 New XML contents
@@ -90,7 +94,7 @@ END
 # Write the standard to the distribution file.
 add_line_1before_last "${MINVERSION}" distribution.xml
 
-echo "[status] Rebuilding the package archive..."
+echo "[build] Rebuilding the package archive..."
 
 # Rebuild package with distribution hacks
 productbuild --distribution distribution.xml \
@@ -98,6 +102,7 @@ productbuild --distribution distribution.xml \
 	--sign "Developer ID Installer: James Balamuta" \
 	--package-path ./macos-rtools-temp.pkg macos-rtools-${INSTALLER_VERSION}.pkg
 
-# Delete the initial build
+echo "[cleanup] Removing the temporary package archive..."
 rm macos-rtools-temp.pkg
 
+echo "[finish] Installer created successfully..."
