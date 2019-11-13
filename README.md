@@ -10,7 +10,7 @@ Specifically, the installer will try to download and install:
 - `gfortran6.1` from <https://cran.r-project.org/bin/macosx/tools/>
 
 For those interested, the installer can be obtained
-on either the project's [**release page**](https://github.com/coatless/r-macos-rtools/releases/latest)
+on either the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest)
 or through <http://go.illinois.edu/r-macos-rtools-pkg>. The pre-built binaries this
 installer encloses can be found at <https://developer.apple.com/download/more/>,
 <https://cran.r-project.org/bin/macosx/tools/>, and <https://gcc.gnu.org/wiki/GFortranBinaries#MacOS-1>. 
@@ -23,7 +23,7 @@ of the [University of Edinburgh](http://www.ed.ac.uk/).
 
 ## How do I use the installer?
 
-1. Download it from the project's [**release page**](https://github.com/coatless/r-macos-rtools/releases/latest)
+1. Download it from the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest)
    or through <http://go.illinois.edu/r-macos-rtools-pkg>.
 2. Open the installer by either double click or right clicking to bring up menu and selecting "Open".
 3. From here, navigate through it like a normal macOS installer.
@@ -49,7 +49,7 @@ the user's password to accomplish. These actions are:
 
 Verify steps are conducted using embedded md5 hashes of the files.
 If the hash is not identical to what was embedded, the installer will
-exit. For details as to how this implemented please see
+exit. For details as to how this was implemented please see
 [Issue 8: Verify pkg hash](https://github.com/coatless/r-macos-rtools/issues/8)
 and the 
 [Pull Request 10: Feature Pkg Hash Verification](https://github.com/coatless/r-macos-rtools/pull/10).
@@ -76,7 +76,7 @@ With this being said, the code used to generate the installer has been made publ
 Below is an abridged version of the actions of each file provided.
 
 - `scripts/postinstall`
-   - Downloads and Installs Xcode CLI, `clang4`, and `gfortran`
+   - Downloads and Installs Xcode CLI, `clang7`, and `gfortran6.1`
       - Detects the appropriate `Command Line Tools` dmg installer
 	    by using a [headless cli check](https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14),
 		downloads the installer from <https://developer.apple.com/download/more/>,
