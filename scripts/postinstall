@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 3.1.0 -- 2019-11-13
+# Version 3.2.0 -- 2019-12-03
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -243,6 +243,8 @@ HEADER_LOCATION="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 
 echo "[init] Checking if file '~/.R/Makevars' exists"
 if [ -f "${R_MAKEVARS_LOCAL}" ]; then	
+	echo "[setup] Ensuring the existing '~/.R/Makevars' is writable ..."
+	sudo chown ${USER} ${R_MAKEVARS_LOCAL}
 	echo "[setup] '~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck' ..."
 	cp ${R_MAKEVARS_LOCAL} ${R_MAKEVARS_LOCAL}.bck
 else
@@ -280,7 +282,9 @@ R_ENVIRON_LOCAL=~/.Renviron
 
 echo "[init] Checking if file '~/.Renviron' exists"
 
-if [ -f "${R_ENVIRON_LOCAL}" ]; then	
+if [ -f "${R_ENVIRON_LOCAL}" ]; then
+	echo "[setup] Ensuring the existing '~/.Renviron' is writable ..."
+	sudo chown ${USER} ${R_ENVIRON_LOCAL}
 	echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
 	cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
 fi

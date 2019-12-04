@@ -9,6 +9,9 @@ Specifically, the installer will try to download and install:
 - `clang7` from <https://cran.r-project.org/bin/macosx/tools/>
 - `gfortran6.1` from <https://cran.r-project.org/bin/macosx/tools/>
 
+Aftwards, it will attempt to configure the necessary `~/.R/Makevars` and `~/.Renviron` files.
+If either file is pre-existing, then a backup will be made prior to setting up the new versions. 
+
 For those interested, the installer can be obtained
 on either the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest)
 or through <http://go.illinois.edu/r-macos-rtools-pkg>. The pre-built binaries this
@@ -46,6 +49,10 @@ the user's password to accomplish. These actions are:
 1. download, verify, and install `gfortran6.1`
 1. establish the proper header files in `CFLAGS`, `CPPFLAGS`, and `CXXFLAGS` in the `~/.R/Makevars` file
 1. add to the `PATH` variable where the `clang7` binary is by using `~/.Renviron`
+
+**Note:** The installer will replace existing `~/.R/Makevars` and `~/.Renviron` files. 
+The existing files will be copied to a backup file, e.g. `~/.R/Makevars.bck` and `~/.Renvion.bck`.
+Re-running the installer _will_ result in the old backup files being wiped.
 
 Verify steps are conducted using embedded md5 hashes of the files.
 If the hash is not identical to what was embedded, the installer will
@@ -91,6 +98,7 @@ Below is an abridged version of the actions of each file provided.
      to compile using the new header location.
 	   - `CFLAGS`, `CPPFLAGS`, `CXXFLAGS` for `clang7`
    - Make the `~/.Renviron` file with a modified `PATH` variable to the location of `clang7`.
+   - **Note:** Pre-existing `~/.R/Makevars` and `~/.Renviron` files will be backed up prior to being overridden. 
 - `make_installer.sh`
    - Create the installer package R binary installer `.pkg`
       - Builds the package from the extracted tar using `pkgbuild` 

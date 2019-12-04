@@ -1,5 +1,10 @@
 # ChangeLog
 
+* __v3.2.0__ - 2019-12-03
+
+- Fix issue where either `~/.R/Makevars` or `~/.Renviron` were owned by `root` instead of the user. (reported in #28 by @Ptterz!)
+- Change `README.md` and package installer splash screen to be explicit with what happens to pre-existing `~/.R/Makevars` and `~/.Renviron`. (reported in #27 by @joranE)
+
 * __v3.1.0__ - 2019-11-13
 
 - Add `CXXFLAGS` in `~/.R/Makevars` for better support prior to R 3.6.1
