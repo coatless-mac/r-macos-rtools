@@ -1,5 +1,9 @@
 # ChangeLog
 
+* __v3.2.1__ - 2019-12-17
+
+- Provide a _C++14_ specific `SHLIB_CXX14LDFLAGS` to address issues arising with _Stan_.
+
 * __v3.2.0__ - 2019-12-03
 
 - Fix issue where either `~/.R/Makevars` or `~/.Renviron` were owned by `root` instead of the user. (reported in #28 by @Ptterz!)

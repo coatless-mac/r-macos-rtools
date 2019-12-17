@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 #
-# Version 3.2.0 -- 2019-12-03
+# Version 3.2.1 -- 2019-12-17
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ echo "[setup] Creating an environment for the installer..."
 chmod a+x scripts/*
 
 # Version of installer
-INSTALLER_VERSION=3.2.0
+INSTALLER_VERSION=3.2.1
 
 # Previously, we created a payload-free package due to downloading
 # components as needed. We used a read receipt trick of including an empty
