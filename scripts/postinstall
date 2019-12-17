@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 3.2.0 -- 2019-12-03
+# Version 3.2.1 -- 2019-12-17
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -268,6 +268,7 @@ CXXFLAGS=$HEADER_LOCATION
 CPPFLAGS=$HEADER_LOCATION -I/usr/local/include
 
 SHLIB_CXXLDFLAGS+=-Wl,-rpath,\${R_HOME}/lib \${R_HOME}/lib/libc++abi.1.dylib
+SHLIB_CXX14LDFLAGS+=-Wl,-rpath,\${R_HOME}/lib \${R_HOME}/lib/libc++abi.1.dylib
 # clang: end
 EOF
 
