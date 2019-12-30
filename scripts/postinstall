@@ -65,22 +65,11 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
     echo "[note] Retrieving correct Xcode CLI..."
     
     # Figure out the correct Xcode CLI for the given mac OS
-    PROD=""
-    if [[ ${os_vers_minor} -ge 15 ]]; then
-        echo "[note] Retrieving Xcode CLI on Catalina (10.15) or higher OS..."
-        PROD=$(sudo softwareupdate -l |
-            grep "\*.*Command Line" |
-            head -n 1 | awk -F"*" '{print $2}' |
-            sed -e 's/^ * Label: //' |
-            tr -d '\n')
-    else
-        echo "[note] Retrieving Xcode CLI on Mojave (10.14) or lower OS..."
-        PROD=$(sudo softwareupdate -l |
-            grep "\*.*Command Line" |
-            tail -n 1 | awk -F"*" '{print $2}' |
-            sed -e 's/^ *//' |
-            tr -d '\n')
-    fi
+    PROD=$(sudo softwareupdate -l |
+           grep "\*.*Command Line" |
+           tail -n 1 | awk -F"*" '{print $2}' |
+           sed -e 's/^ *Label: //' -e 's/^ *//' |
+           tr -d '\n')
 
     echo "[setup] Installing Xcode CLI via softwareupdate..."
     # Install Xcode CLI         
