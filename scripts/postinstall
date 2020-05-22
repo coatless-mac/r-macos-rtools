@@ -132,56 +132,13 @@ install_pkg_root() {
     sudo installer -package $1 -target /
 }
 
-################################################################
-
-# The following script are meant to modify the Makevars file
-# for R
-
-#1 Variable to find/remove
-#2 Config file to search
-remove_config_variable(){
-
-    pattern=$1
-    config_file=$2
-
-    # Check if there are matches
-    if grep -q $pattern $config_file; then
-        # Remove matches
-        # '' required due to macOS
-        sed -i '' "/$pattern/d" $config_file
-        echo "[status] Removed configuration line containing: $pattern ..."
-    fi
-}
-
-#1 Variable to find
-#2 Value to append
-#3 Config file to search
-append_config_variable(){
-    pattern=$1
-    append_with=$2
-    config_file=$3
-
-    # Check if there are matches
-    if grep -q $pattern $config_file; then
-        # Append to the end of the line of each match
-        # '' required due to macOS
-        sed -i '' "\~$pattern~s~$~ $append_with~" $config_file
-        echo "[status] Appended configuration line containing $pattern with $append_with ..."
-    else
-        # Append a new line to end of config file
-        echo "$pattern=$append_with" >> $config_file
-        echo "[status] Added new configuration line $pattern=$append_with to end of $config_file..."
-    fi
-}
-
-add_config_variable(){
-    config_var=$1
-    config_file=$2
-
-    echo "[status] Adding configuration line $config_var to $config_file ..."
-
-    # Append a new line to end of config file
-    echo "$config_var" >> $config_file
+# 1: Package to install, e.g. /tmp/gfortran82.dmg
+# 2: Volume specific-location, e.g. gfortran-8.2-Mojave/gfortran.pkg
+install_gfortran_dmg() {
+    sudo hdiutil attach $1 -mountpoint /Volumes/gfortran
+    sudo installer -pkg "/Volumes/gfortran/$2" -target /
+    sudo hdiutil detach /Volumes/gfortran
+    rm -f $1
 }
 
 ################################################################
