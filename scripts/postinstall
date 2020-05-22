@@ -188,7 +188,7 @@ echo "[done] Ensured '~/.R/Makevars' is no longer present ..."
 
 ##########################################
 
-# Add clang to path in .Renviron
+# Remove configuration for ~/.Renviron
 
 # Establish the location for the R environment file
 R_ENVIRON_LOCAL=~/.Renviron
@@ -196,21 +196,13 @@ R_ENVIRON_LOCAL=~/.Renviron
 echo "[init] Checking if file '~/.Renviron' exists"
 
 if [ -f "${R_ENVIRON_LOCAL}" ]; then
-    echo "[setup] Ensuring the existing '~/.Renviron' is writable ..."
-    sudo chown ${USER} ${R_ENVIRON_LOCAL}
     echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
     cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
+    echo "[delete] 'Removing ~/.Renviron' ..."
+    sudo rm ${R_ENVIRON_LOCAL}
 fi
 
-echo "[setup] Writing configuration to '~/.Renviron' ..."
-
-cat <<- EOF > ${R_ENVIRON_LOCAL}
-# clang: start
-PATH="/usr/local/${CLANG_BINARY}/bin:\${PATH}"
-# clang: end
-EOF
-
-echo "[done] Installed '~/.Renviron' file ..."
+echo "[done] Ensured '~/.Renviron' is no longer present ..."
 
 ##########################################
 
