@@ -161,38 +161,16 @@ backup_and_remove_file() {
 
 ################################################################
 
-# Remove configuration for Makevars
+# Remove configuration for Makevars and Renviron
 
 # Local User Makevars file
 R_MAKEVARS_LOCAL=~/.R/Makevars
 
-echo "[init] Checking if file '~/.R/Makevars' exists"
-if [ -f "${R_MAKEVARS_LOCAL}" ]; then    
-    echo "[setup] '~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck' ..."
-    cp ${R_MAKEVARS_LOCAL} ${R_MAKEVARS_LOCAL}.bck
-    echo "[delete] 'Removing ~/.R/Makevars' ..."
-    sudo rm ${R_MAKEVARS_LOCAL}
-fi
-
-echo "[done] Ensured '~/.R/Makevars' is no longer present ..."
-
-##########################################
-
-# Remove configuration for ~/.Renviron
-
 # Establish the location for the R environment file
 R_ENVIRON_LOCAL=~/.Renviron
 
-echo "[init] Checking if file '~/.Renviron' exists"
-
-if [ -f "${R_ENVIRON_LOCAL}" ]; then
-    echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
-    cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
-    echo "[delete] 'Removing ~/.Renviron' ..."
-    sudo rm ${R_ENVIRON_LOCAL}
-fi
-
-echo "[done] Ensured '~/.Renviron' is no longer present ..."
+backup_and_remove_file $R_MAKEVARS_LOCAL
+backup_and_remove_file $R_ENVIRON_LOCAL
 
 ##########################################
 
