@@ -144,33 +144,40 @@ install_gfortran_dmg() {
     rm -f $1
 }
 
-################################################################
+# No parameters are passed in
+download_gfortran_dmg() {
+    # URLS: 
+    # https://github.com/fxcoudert/gfortran-for-macOS/releases/download/6.3/gfortran-6.3-Sierra.dmg
+    # https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg
 
-echo "[init] Downloading the clang7 compiler package ..."
+    # Setup array of values as this is bash...
+    os="bad"
+    md5_hash="Unknown"
+    gfortran_version="Unknown"
 
-# Provide download information for clang4 binary
-LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
-REQUESTED_FILE="clang-7.0.0.pkg"
+    # Detect operating system
+    case $(macos_minor_version) in
+    13)
+      os="Sierra"
+      gfortran_version="6.3"
+      md5_hash="1849cea667bb714c5c04a8565a9fe231"
+      ;;
+    14|15)
+      os="Mojave"
+      gfortran_version="8.2"
+      md5_hash="fbae8829503018b736a5a7013e3a6503"
+      ;;
+    *)
+      echo "[error] Bad version supplied ..."
+      exit 1
+      ;;
+    esac
 
-# Download file into working directory
-download_file $LIBS_URL $REQUESTED_FILE
+    curl -fLo gfortran.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/$gfortran_version/gfortran-$gfortran_version-$os.dmg
 
-echo "[verify] Verifying the hash of clang7 compiler package ..."
-
-# Check the hash matches the built-in hash
-# exit if this is not the case
-check_md5_hash $REQUESTED_FILE "cef3fd2a5c165d00f9941f64ea4024f7"
-
-echo "[setup] Installing the clang7 compiler package ..."
-
-# Install the package into root
-install_pkg_root $REQUESTED_FILE
-
-echo "[clean] Removing installer package ..."
-# Clean up by removing tar
-rm -rf $REQUESTED_FILE
-
-echo "[done] Finished installing the compiler ..."
+    # Verify hash is correct. Otherwise, exit!
+    check_md5_hash gfortran.dmg $md5_hash
+}
 
 ################################################################
 
