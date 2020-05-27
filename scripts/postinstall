@@ -66,10 +66,13 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
     
     # Figure out the correct Xcode CLI for the given mac OS
     PROD=$(sudo softwareupdate -l |
-           grep "\*.*Command Line" |
-           tail -n 1 | awk -F"*" '{print $2}' |
-           sed -e 's/^ *Label: //' -e 's/^ *//' |
-           tr -d '\n')
+          grep "\*.*Command Line" | 
+          tail -n 1 | 
+          awk -F"*" '{print $2}' | 
+          sed -e 's/^ *//' | 
+          sed 's/Label: //g' |
+          tr -d '\n')
+    # s/Label: //g was required for Catalina
 
     echo "[setup] Installing Xcode CLI via softwareupdate..."
     # Install Xcode CLI         
