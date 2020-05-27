@@ -3,9 +3,9 @@
 #
 # make_installer.sh
 #
-# Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
+# Copyright (C) 2018 - 2020 James Joseph Balamuta <balamut2@illinois.edu>
 #
-# Version 3.2.2 -- 2019-12-30
+# Version 4.0.0 -- 2020-05-27
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ echo "[setup] Creating an environment for the installer..."
 chmod a+x scripts/*
 
 # Version of installer
-INSTALLER_VERSION=3.2.2
+INSTALLER_VERSION=4.0.0
 
 # Previously, we created a payload-free package due to downloading
 # components as needed. We used a read receipt trick of including an empty
@@ -82,11 +82,11 @@ add_line_1before_last '<welcome file="WELCOME_DISPLAY.rtf"/>' distribution.xml
 add_line_1before_last '<license file="LICENSE.rtf"/>' distribution.xml
 
 # Enforce a minimum standard for the installer.
-# R CRAN Binaries use OS X Mavericks 10.11
+# R CRAN Binaries use macOS High Sierra 10.13
 # Docs: https://developer.apple.com/library/archive/documentation/DeveloperTools/Reference/DistributionDefinitionRef/Chapters/Distribution_XML_Ref.html#//apple_ref/doc/uid/TP40005370-CH100-SW33
 MINVERSION=$(cat <<-END
 <allowed-os-versions>
-    <os-version min="10.11.0" />
+    <os-version min="10.13.0" />
 </allowed-os-versions>
 END
 )
