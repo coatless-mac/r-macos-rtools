@@ -11,12 +11,12 @@
     <choice id="com.rbinaries.rtools" visible="false">
         <pkg-ref id="com.rbinaries.rtools"/>
     </choice>
-    <pkg-ref id="com.rbinaries.rtools" version="3.2.2" onConclusion="none">macos-rtools-temp.pkg</pkg-ref>
+    <pkg-ref id="com.rbinaries.rtools" version="4.0.0" onConclusion="none">macos-rtools-temp.pkg</pkg-ref>
 	<title>macOS R toolchain</title>
 	<background file="Rlogo.png" mime-type="image/png" />
 	<welcome file="WELCOME_DISPLAY.rtf"/>
 	<license file="LICENSE.rtf"/>
 	<allowed-os-versions>
-    <os-version min="10.11.0" />
+    <os-version min="10.13.0" />
 </allowed-os-versions>
 </installer-gui-script>

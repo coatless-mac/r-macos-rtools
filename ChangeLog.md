@@ -1,5 +1,12 @@
 ## ChangeLog
 
+### __v4.0.0__ - 2020-05-27
+
+- Re-wrote the installer package to focus on R 4.0.0 requirements.
+   - Downloads and installs Xcode CLI
+   - Downloads and installs appropriate gfortran binary
+   - Backup and remove existing ~/.R/Makevars and ~/.Renviron configuration files. 
+
 ### __v3.2.2__ - 2019-12-30
 
 - Xcode CLI headless installation for macOS Catalina was made more robust ([#33](https://github.com/rmacoslib/r-macos-rtools/issues/33)). 

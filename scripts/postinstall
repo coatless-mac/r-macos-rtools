@@ -3,9 +3,9 @@
 #
 # postinstall.sh
 #
-# Copyright (C) 2018 - 2019 James Joseph Balamuta <balamut2@illinois.edu>
+# Copyright (C) 2018 - 2020 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 3.2.2 -- 2019-12-30
+# Version 4.0.0 -- 2020-05-27
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,15 +28,15 @@
 # The unmodified code can be found at:
 # https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14
 
-# Retrieve version string x.y.z,
-# x should be 10, y is the version, and z is the patch issued
-product_version=$(sw_vers -productVersion)
-
-# Substitute periods with spaces
-os_vers=( ${product_version//./ } )
-
-#  Retrieve 
-os_vers_minor="${os_vers[1]}"
+macos_minor_version() {
+    # Retrieve version string x.y.z,
+    # x should be 10, y is the version, and z is the patch issued
+    product_version=$(sw_vers -productVersion)
+    
+    # Retrieve minor version of OS.
+    # Note: We make an assumption about the installer state preventing older uses.
+    echo $product_version | cut -d '.' -f 2
+}
 
 # For more details on manipulations, c.f. 
 # https://superuser.com/a/1259034/429046
@@ -57,7 +57,7 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
     touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
     # Reset the Xcode CLI path
-    if [[ ${os_vers_minor} -ge 14 ]]; then
+    if [[ $(macos_minor_version) -eq 14 ]]; then
         echo "[note] Needed to reset Xcode CLI path..."
         sudo xcode-select --reset 
     fi
@@ -66,10 +66,13 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
     
     # Figure out the correct Xcode CLI for the given mac OS
     PROD=$(sudo softwareupdate -l |
-           grep "\*.*Command Line" |
-           tail -n 1 | awk -F"*" '{print $2}' |
-           sed -e 's/^ *Label: //' -e 's/^ *//' |
-           tr -d '\n')
+          grep "\*.*Command Line" | 
+          tail -n 1 | 
+          awk -F"*" '{print $2}' | 
+          sed -e 's/^ *//' | 
+          sed 's/Label: //g' |
+          tr -d '\n')
+    # s/Label: //g was required for Catalina
 
     echo "[setup] Installing Xcode CLI via softwareupdate..."
     # Install Xcode CLI         
@@ -132,195 +135,83 @@ install_pkg_root() {
     sudo installer -package $1 -target /
 }
 
-################################################################
+# 1: Package to install, e.g. /tmp/gfortran82.dmg
+# 2: gfortran version
+# 3: OS version name 
+# 2 and 3 create the volume specific-location, e.g. gfortran-8.2-Mojave/gfortran.pkg
+install_gfortran_dmg() {
+    sudo hdiutil attach $1 -mountpoint /Volumes/gfortran
+    sudo installer -pkg "/Volumes/gfortran/gfortran-$2-$3/gfortran.pkg" -target /
+    sudo hdiutil detach /Volumes/gfortran
+    rm -f $1
+}
 
-# The following script are meant to modify the Makevars file
-# for R
-
-#1 Variable to find/remove
-#2 Config file to search
-remove_config_variable(){
-
-    pattern=$1
-    config_file=$2
-
-    # Check if there are matches
-    if grep -q $pattern $config_file; then
-        # Remove matches
-        # '' required due to macOS
-        sed -i '' "/$pattern/d" $config_file
-        echo "[status] Removed configuration line containing: $pattern ..."
+#1: Location of file
+backup_and_remove_file() {
+    echo "[init] Checking if file '$1' exists"
+    if [ -f "$1" ]; then    
+        echo "[setup] '$1' detected. Making a backup at '$1.bck' ..."
+        cp $1 $1.bck
+        echo "[delete] Removing '$1' ..."
+        sudo rm $1
     fi
-}
-
-#1 Variable to find
-#2 Value to append
-#3 Config file to search
-append_config_variable(){
-    pattern=$1
-    append_with=$2
-    config_file=$3
-
-    # Check if there are matches
-    if grep -q $pattern $config_file; then
-        # Append to the end of the line of each match
-        # '' required due to macOS
-        sed -i '' "\~$pattern~s~$~ $append_with~" $config_file
-        echo "[status] Appended configuration line containing $pattern with $append_with ..."
-    else
-        # Append a new line to end of config file
-        echo "$pattern=$append_with" >> $config_file
-        echo "[status] Added new configuration line $pattern=$append_with to end of $config_file..."
-    fi
-}
-
-add_config_variable(){
-    config_var=$1
-    config_file=$2
-
-    echo "[status] Adding configuration line $config_var to $config_file ..."
-
-    # Append a new line to end of config file
-    echo "$config_var" >> $config_file
+    
+    echo "[done] Ensured '$1' is no longer present ..."
 }
 
 ################################################################
 
-echo "[init] Downloading the clang7 compiler package ..."
-
-# Provide download information for clang4 binary
-LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
-REQUESTED_FILE="clang-7.0.0.pkg"
-
-# Download file into working directory
-download_file $LIBS_URL $REQUESTED_FILE
-
-echo "[verify] Verifying the hash of clang7 compiler package ..."
-
-# Check the hash matches the built-in hash
-# exit if this is not the case
-check_md5_hash $REQUESTED_FILE "cef3fd2a5c165d00f9941f64ea4024f7"
-
-echo "[setup] Installing the clang7 compiler package ..."
-
-# Install the package into root
-install_pkg_root $REQUESTED_FILE
-
-echo "[clean] Removing installer package ..."
-# Clean up by removing tar
-rm -rf $REQUESTED_FILE
-
-echo "[done] Finished installing the compiler ..."
-
-################################################################
-
-echo "[init] Creating environment variables ..."
+# Remove configuration for Makevars and Renviron
 
 # Local User Makevars file
 R_MAKEVARS_LOCAL=~/.R/Makevars
 
-# clang compiler version
-CLANG_BINARY=clang7
-
-# Location of CC Compiler
-CC_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang
-
-# Location of CXX Compiler
-CXX_COMPILER=/usr/local/${CLANG_BINARY}/bin/clang++
-
-HEADER_LOCATION="-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
-
-echo "[init] Checking if file '~/.R/Makevars' exists"
-if [ -f "${R_MAKEVARS_LOCAL}" ]; then    
-    echo "[setup] Ensuring the existing '~/.R/Makevars' is writable ..."
-    sudo chown ${USER} ${R_MAKEVARS_LOCAL}
-    echo "[setup] '~/.R/Makevars' detected. Making a backup at ''~/.R/Makevars.bck' ..."
-    cp ${R_MAKEVARS_LOCAL} ${R_MAKEVARS_LOCAL}.bck
-else
-    echo "[setup] Creating '~/.R/' directory ..."
-    mkdir -p ~/.R
-fi
-
-echo "[init] Creating '~/.R/Makevars' from scratch ..."
-
-# Create the file
-touch ${R_MAKEVARS_LOCAL}
-
-echo "[setup] Filling '~/.R/Makevars' with appropriate compile time implicit variables ..."
-# Fill with appropriate linking statements via heredoc insertion
-# The - removes tabbing
-cat <<- EOF > ${R_MAKEVARS_LOCAL}
-# clang: start
-CFLAGS=$HEADER_LOCATION
-CCFLAGS=$HEADER_LOCATION
-CXXFLAGS=$HEADER_LOCATION
-CPPFLAGS=$HEADER_LOCATION -I/usr/local/include
-
-SHLIB_CXXLDFLAGS+=-Wl,-rpath,\${R_HOME}/lib \${R_HOME}/lib/libc++abi.1.dylib
-SHLIB_CXX14LDFLAGS+=-Wl,-rpath,\${R_HOME}/lib \${R_HOME}/lib/libc++abi.1.dylib
-# clang: end
-EOF
-
-echo "[done] Installed '~/.R/Makevars' configuration ..."
-
-##########################################
-
-# Add clang to path in .Renviron
-
 # Establish the location for the R environment file
 R_ENVIRON_LOCAL=~/.Renviron
 
-echo "[init] Checking if file '~/.Renviron' exists"
-
-if [ -f "${R_ENVIRON_LOCAL}" ]; then
-    echo "[setup] Ensuring the existing '~/.Renviron' is writable ..."
-    sudo chown ${USER} ${R_ENVIRON_LOCAL}
-    echo "[setup] '~/.Renviron' detected. Making a backup at ''~/.Renviron.bck'..."
-    cp ${R_ENVIRON_LOCAL} ${R_ENVIRON_LOCAL}.bck
-fi
-
-echo "[setup] Writing configuration to '~/.Renviron' ..."
-
-cat <<- EOF > ${R_ENVIRON_LOCAL}
-# clang: start
-PATH="/usr/local/${CLANG_BINARY}/bin:\${PATH}"
-# clang: end
-EOF
-
-echo "[done] Installed '~/.Renviron' file ..."
+backup_and_remove_file $R_MAKEVARS_LOCAL
+backup_and_remove_file $R_ENVIRON_LOCAL
 
 ##########################################
 
-
 # gfortran binary
-echo "[init] Downloading the gfortran6.1 package ..."
+echo "[init] Downloading the appropriate gfortran package ..."
 
-# Deploy only the 6.1 gfortran binary
-GFORTRAN_HASH="201026216e8b373d9cd2efc0cc474bb8"
+# Setup values as this is bash...
+os="bad"
+md5_hash="Unknown"
+gfortran_version="Unknown"
 
-# Download software
+# Detect operating system
+case $(macos_minor_version) in
+13)
+  os="Sierra"
+  gfortran_version="6.3"
+  md5_hash="1849cea667bb714c5c04a8565a9fe231"
+  ;;
+14|15)
+  os="Mojave"
+  gfortran_version="8.2"
+  md5_hash="fbae8829503018b736a5a7013e3a6503"
+  ;;
+*)
+  echo "[error] Bad version supplied ..."
+  exit 1
+  ;;
+esac
 
-# Provide download information for clang4 binary
-LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
-REQUESTED_FILE="gfortran-6.1.pkg"
+# URLS: 
+# https://github.com/fxcoudert/gfortran-for-macOS/releases/download/6.3/gfortran-6.3-Sierra.dmg
+# https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg
 
-# Download file into working directory
-download_file $LIBS_URL $REQUESTED_FILE
+curl -fLo temp-gfortran.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/$gfortran_version/gfortran-$gfortran_version-$os.dmg
 
-echo "[verify] Verifying the hash of gfortran6.1 package ..."
+# Verify hash is correct. Otherwise, exit!
+check_md5_hash temp-gfortran.dmg $md5_hash
 
-# Check the hash matches the built-in hash
-# exit if this is not the case
-check_md5_hash $REQUESTED_FILE $GFORTRAN_HASH
+install_gfortran_dmg temp-gfortran.dmg $gfortran_version $os
 
-echo "[setup] Installing the gfortran6.1 package ..."
-
-# Install the package into root
-install_pkg_root $REQUESTED_FILE
-
-echo "[clean] Removing installer package ..."
-# Delete the dmg file
-rm -rf ${GFORTRAN_DMG}.dmg
+rm -f temp-gfortran.dmg
 
 echo "[done] Installed gfortran package ..."
 
