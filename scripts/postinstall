@@ -146,39 +146,17 @@ install_gfortran_dmg() {
     rm -f $1
 }
 
-# No parameters are passed in
-download_gfortran_dmg() {
-    # URLS: 
-    # https://github.com/fxcoudert/gfortran-for-macOS/releases/download/6.3/gfortran-6.3-Sierra.dmg
-    # https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg
-
-    # Setup array of values as this is bash...
-    os="bad"
-    md5_hash="Unknown"
-    gfortran_version="Unknown"
-
-    # Detect operating system
-    case $(macos_minor_version) in
-    13)
-      os="Sierra"
-      gfortran_version="6.3"
-      md5_hash="1849cea667bb714c5c04a8565a9fe231"
-      ;;
-    14|15)
-      os="Mojave"
-      gfortran_version="8.2"
-      md5_hash="fbae8829503018b736a5a7013e3a6503"
-      ;;
-    *)
-      echo "[error] Bad version supplied ..."
-      exit 1
-      ;;
-    esac
-
-    curl -fLo gfortran.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/$gfortran_version/gfortran-$gfortran_version-$os.dmg
-
-    # Verify hash is correct. Otherwise, exit!
-    check_md5_hash gfortran.dmg $md5_hash
+#1: Location of file
+backup_and_remove_file() {
+    echo "[init] Checking if file '$1' exists"
+    if [ -f "$1" ]; then    
+        echo "[setup] '$1' detected. Making a backup at '$1.bck' ..."
+        cp $1 $1.bck
+        echo "[delete] Removing '$1' ..."
+        sudo rm $1
+    fi
+    
+    echo "[done] Ensured '$1' is no longer present ..."
 }
 
 ################################################################
