@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2018 - 2020 James Joseph Balamuta <balamut2@illinois.edu>
 # 
-# Version 4.0.0 -- 2020-04-28
+# Version 4.0.0 -- 2020-05-27
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -210,6 +210,8 @@ curl -fLo temp-gfortran.dmg https://github.com/fxcoudert/gfortran-for-macOS/rele
 check_md5_hash temp-gfortran.dmg $md5_hash
 
 install_gfortran_dmg temp-gfortran.dmg $gfortran_version $os
+
+rm -f temp-gfortran.dmg
 
 echo "[done] Installed gfortran package ..."
 
