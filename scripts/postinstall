@@ -28,15 +28,15 @@
 # The unmodified code can be found at:
 # https://github.com/timsutton/osx-vm-templates/blob/ce8df8a7468faa7c5312444ece1b977c1b2f77a4/scripts/xcode-cli-tools.sh#L8-L14
 
-# Retrieve version string x.y.z,
-# x should be 10, y is the version, and z is the patch issued
-product_version=$(sw_vers -productVersion)
-
-# Substitute periods with spaces
-os_vers=( ${product_version//./ } )
-
-#  Retrieve 
-os_vers_minor="${os_vers[1]}"
+macos_minor_version() {
+    # Retrieve version string x.y.z,
+    # x should be 10, y is the version, and z is the patch issued
+    product_version=$(sw_vers -productVersion)
+    
+    # Retrieve minor version of OS.
+    # Note: We make an assumption about the installer state preventing older uses.
+    echo $product_version | cut -d '.' -f 2
+}
 
 # For more details on manipulations, c.f. 
 # https://superuser.com/a/1259034/429046
