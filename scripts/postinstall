@@ -57,7 +57,7 @@ if [ ! -d "/Library/Developer/CommandLineTools" ]; then
     touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
     # Reset the Xcode CLI path
-    if [[ ${os_vers_minor} -ge 14 ]]; then
+    if [[ $(macos_minor_version) -eq 14 ]]; then
         echo "[note] Needed to reset Xcode CLI path..."
         sudo xcode-select --reset 
     fi
