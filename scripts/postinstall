@@ -174,36 +174,42 @@ backup_and_remove_file $R_ENVIRON_LOCAL
 
 ##########################################
 
-
 # gfortran binary
-echo "[init] Downloading the gfortran6.1 package ..."
+echo "[init] Downloading the appropriate gfortran package ..."
 
-# Deploy only the 6.1 gfortran binary
-GFORTRAN_HASH="201026216e8b373d9cd2efc0cc474bb8"
+# Setup values as this is bash...
+os="bad"
+md5_hash="Unknown"
+gfortran_version="Unknown"
 
-# Download software
+# Detect operating system
+case $(macos_minor_version) in
+13)
+  os="Sierra"
+  gfortran_version="6.3"
+  md5_hash="1849cea667bb714c5c04a8565a9fe231"
+  ;;
+14|15)
+  os="Mojave"
+  gfortran_version="8.2"
+  md5_hash="fbae8829503018b736a5a7013e3a6503"
+  ;;
+*)
+  echo "[error] Bad version supplied ..."
+  exit 1
+  ;;
+esac
 
-# Provide download information for clang4 binary
-LIBS_URL="https://cran.r-project.org/bin/macosx/tools/"
-REQUESTED_FILE="gfortran-6.1.pkg"
+# URLS: 
+# https://github.com/fxcoudert/gfortran-for-macOS/releases/download/6.3/gfortran-6.3-Sierra.dmg
+# https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg
 
-# Download file into working directory
-download_file $LIBS_URL $REQUESTED_FILE
+curl -fLo temp-gfortran.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/$gfortran_version/gfortran-$gfortran_version-$os.dmg
 
-echo "[verify] Verifying the hash of gfortran6.1 package ..."
+# Verify hash is correct. Otherwise, exit!
+check_md5_hash temp-gfortran.dmg $md5_hash
 
-# Check the hash matches the built-in hash
-# exit if this is not the case
-check_md5_hash $REQUESTED_FILE $GFORTRAN_HASH
-
-echo "[setup] Installing the gfortran6.1 package ..."
-
-# Install the package into root
-install_pkg_root $REQUESTED_FILE
-
-echo "[clean] Removing installer package ..."
-# Delete the dmg file
-rm -rf ${GFORTRAN_DMG}.dmg
+install_gfortran_dmg temp-gfortran.dmg $gfortran_version $os
 
 echo "[done] Installed gfortran package ..."
 
