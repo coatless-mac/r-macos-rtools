@@ -136,10 +136,12 @@ install_pkg_root() {
 }
 
 # 1: Package to install, e.g. /tmp/gfortran82.dmg
-# 2: Volume specific-location, e.g. gfortran-8.2-Mojave/gfortran.pkg
+# 2: gfortran version
+# 3: OS version name 
+# 2 and 3 create the volume specific-location, e.g. gfortran-8.2-Mojave/gfortran.pkg
 install_gfortran_dmg() {
     sudo hdiutil attach $1 -mountpoint /Volumes/gfortran
-    sudo installer -pkg "/Volumes/gfortran/$2" -target /
+    sudo installer -pkg "/Volumes/gfortran/gfortran-$2-$3/gfortran.pkg" -target /
     sudo hdiutil detach /Volumes/gfortran
     rm -f $1
 }
