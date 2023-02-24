@@ -17,8 +17,8 @@ removing configuration files `~/.R/Makevars` and `~/.Renviron` that are no longe
 Backups for each file will be presented with `.bck` appended to the end. 
 
 For those interested, the installer can be obtained
-on either the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest)
-or through <http://go.illinois.edu/r-macos-rtools-pkg>. The pre-built binaries this
+on either the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest).
+The pre-built binaries this
 installer encloses can be found at <https://developer.apple.com/download/more/> and
 <https://github.com/fxcoudert/gfortran-for-macOS/releases>. 
 
@@ -30,8 +30,7 @@ of the [University of Edinburgh](http://www.ed.ac.uk/).
 
 ## How do I use the installer?
 
-1. Download it from the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest)
-   or through <http://go.illinois.edu/r-macos-rtools-pkg>.
+1. Download it from the project's [**release page**](https://github.com/rmacoslib/r-macos-rtools/releases/latest).
 2. Open the installer by either double click or right clicking to bring up menu and selecting "Open".
 3. From here, navigate through it like a normal macOS installer.
 
