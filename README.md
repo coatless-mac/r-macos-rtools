@@ -1,3 +1,9 @@
+**This installer has been superceded by the 
+[{macrtools}](https://github.com/coatless-mac/macrtools),
+which automatically installs and configures the _R_ toolchain for
+compiled code on macOS.**
+
+**Please do not use this installer as it is notably out of date.**
 
 # Installer Package for macOS _R_ toolchain [![License](https://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html)
 
